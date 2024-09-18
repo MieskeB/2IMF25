@@ -5,6 +5,9 @@ from z3 import *
 canvas_width = 30
 canvas_height = 30
 
+distance_cut_from_canvas = 0
+perp_cut_line = True
+
 posters = [(4, 5), (4, 6), (5, 21), (6, 9), (6, 8), (6, 10), (6, 11), (7, 12), (8, 9), (10, 11), (10, 20)]
 num_posters = len(posters)
 
@@ -48,7 +51,18 @@ for i in range(num_posters):
 # Lastly the cut constraint
 cut = Int('c')
 cut_over_x = Bool('cut_over_x')
-solver.add(And(cut > 0, cut < If(cut_over_x, canvas_height - 1, canvas_width - 1)))
+solver.add(And(cut > 0 + distance_cut_from_canvas,
+               cut < If(cut_over_x,
+                        canvas_height - distance_cut_from_canvas,
+                        canvas_width - distance_cut_from_canvas
+                        )))
+if perp_cut_line:
+    cut_perp = Int('cut_perp')
+    solver.add(And(cut_perp > 0 + distance_cut_from_canvas,
+                   cut_perp < If(Not(cut_over_x),
+                                     canvas_height - distance_cut_from_canvas,
+                                     canvas_width - distance_cut_from_canvas
+                                     )))
 for i in range(num_posters):
     width, height = posters[i]
     solver.add(If(cut_over_x,
@@ -60,6 +74,16 @@ for i in range(num_posters):
                       x[i] + If(rotated[i], height, width) <= cut,
                       x[i] >= cut
                   )))
+    if perp_cut_line:
+        solver.add(If(cut_over_x,
+                      Or(
+                          x[i] + If(rotated[i], height, width) <= cut_perp,
+                          x[i] >= cut_perp
+                      ),
+                      Or(
+                          y[i] + If(rotated[i], width, height) <= cut_perp,
+                          y[i] >= cut_perp
+                      )))
 
 if solver.check() == sat:
     model = solver.model()
@@ -101,6 +125,16 @@ if solver.check() == sat:
     else:
         print(f"Vertical cut at x = {cut_pos}")
         ax.axvline(cut_pos, color='red', linestyle='--', label=f'Cut at x = {cut_pos}')
+
+    if perp_cut_line:
+        cut_perp_pos = model[cut_perp].as_long()
+        if not model[cut_over_x]:
+            print(f"Horizontal cut at y = {cut_perp_pos}")
+            ax.axhline(cut_perp_pos, color='red', linestyle='--', label=f'Cut at y = {cut_perp_pos}')
+        else:
+            print(f"Vertical cut at x = {cut_perp_pos}")
+            ax.axvline(cut_perp_pos, color='red', linestyle='--', label=f'Cut at x = {cut_perp_pos}')
+
 
     # Display the plot
     plt.title("Posters")
