@@ -6,7 +6,7 @@ canvas_width = 30
 canvas_height = 30
 
 distance_cut_from_canvas = 0
-perp_cut_line = True
+perp_cut_line = False
 
 posters = [(4, 5), (4, 6), (5, 21), (6, 9), (6, 8), (6, 10), (6, 11), (7, 12), (8, 9), (10, 11), (10, 20)]
 num_posters = len(posters)
