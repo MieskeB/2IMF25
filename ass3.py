@@ -164,10 +164,24 @@ for t in range(T):
 res1 = Int('t1')
 res2 = Int('t2')
 
+# Adding bounds to improve efficiency
+solver.add(0 <= res1, res1 <= T)
+solver.add(0 <= res2, res2 <= T)
+
 exists_condition = False
 for t1 in range(T - 1):
     for t2 in range(t1, T):
-        same_state = And(
+        same_state = If(And(Or(
+            truck_at_S[t1],
+            truck_at_A[t1],
+            truck_at_B[t1],
+            truck_at_C[t1]
+        ), Or(
+            truck_at_S[t2],
+            truck_at_A[t2],
+            truck_at_B[t2],
+            truck_at_C[t2]
+        )), And(
             Or(
                 And(truck_at_S[t1], truck_at_S[t2]),
                 And(truck_at_A[t1], truck_at_A[t2]),
@@ -178,10 +192,9 @@ for t1 in range(T - 1):
             food_remaining_A[t1] == food_remaining_A[t2],
             food_remaining_B[t1] == food_remaining_B[t2],
             food_remaining_C[t1] == food_remaining_C[t2],
-            last_location[t1] == last_location[t2],
             res1 == t1,
             res2 == t2
-        )
+        ), False)
         exists_condition = Or(exists_condition, same_state)
 
 solver.add(exists_condition)
@@ -205,8 +218,8 @@ if solver.check() == sat:
             print(f"Amount of food at town B: {model[food_remaining_B[i]]}")
             print(f"Amount of food at town C: {model[food_remaining_C[i]]}")
 
-        t1 = model[res1]
-        t2 = model[res2]
+        t1 = model[res1].as_long()
+        t2 = model[res2].as_long()
         print(f"There is a matching state at {t1} and {t2}")
         print(
             f"{t1}: Food: {model[food_remaining_A[t1]]}, {model[food_remaining_B[t1]]}, {model[food_remaining_C[t1]]}")
