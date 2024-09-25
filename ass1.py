@@ -78,16 +78,17 @@ solver.add(Sum([If(skipples[i] > 0, 1, 0) for i in range(num_trucks)]) == 2)
 
 # Objective: maximize the total number of dupples delivered
 solver.add(Sum(dupples) >= 0)
-maximize_dupples = Sum(dupples)
 
 # If crottles require dupples, enforce that constraint
 # If the crottles constraint is enforced, make sure each truck carrying crottles also carries at least 2 dupples
 for i in range(num_trucks):
-    solver.add(If(crottles[i] > 0, dupples[i] >= 2, True))
+
+    #solver.add(If(crottles[i] > 0, dupples[i] >= 2, True)) #part a
+    solver.add(If(crottles[i] > 0, dupples[i] >= 2, dupples[i] == 0)) #part b
 
 # Objective function: maximize the number of dupples
 print("maximizing")
-solver.maximize(maximize_dupples)
+solver.maximize(Sum(dupples))
 print("Post-max")
 # Check if the problem is solvable and get the solution
 
