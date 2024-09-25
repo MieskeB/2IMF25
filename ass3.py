@@ -177,16 +177,16 @@ for t in range(1, T):
 
         results = []
 
-        for t in range(T):
+        for tn in range(T):
             row = []
-            row.append(model[truck_load[t]].as_long())
-            row.append(model[food_remaining_A[t]].as_long())
-            row.append(model[food_remaining_B[t]].as_long())
-            row.append(model[food_remaining_C[t]].as_long())
-            row.append(1 if model[truck_at_S[t]] else 0)
-            row.append(1 if model[truck_at_A[t]] else 0)
-            row.append(1 if model[truck_at_B[t]] else 0)
-            row.append(1 if model[truck_at_C[t]] else 0)
+            row.append(model[truck_load[tn]].as_long())
+            row.append(model[food_remaining_A[tn]].as_long())
+            row.append(model[food_remaining_B[tn]].as_long())
+            row.append(model[food_remaining_C[tn]].as_long())
+            row.append(1 if model[truck_at_S[tn]] else 0)
+            row.append(1 if model[truck_at_A[tn]] else 0)
+            row.append(1 if model[truck_at_B[tn]] else 0)
+            row.append(1 if model[truck_at_C[tn]] else 0)
             results.append(row)
 
         with open('ass3res.txt', 'w') as f:
