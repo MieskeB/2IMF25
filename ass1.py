@@ -27,36 +27,18 @@ skipples_weight = 500
 crottles_weight = 2500
 dupples_weight = 600
 
-# Each truck has at most 10 pallets and 8000 kg weight limit
 for i in range(num_trucks):
+    # Can't have a negative amount of pallets
     solver.add(nuzzles[i] >= 0)
     solver.add(prittles[i] >= 0)
     solver.add(skipples[i] >= 0)
     solver.add(crottles[i] >= 0)
     solver.add(dupples[i] >= 0)
-    #solver.add(nuzzles[i] <= 10)
-    #solver.add(prittles[i] <= 10)
-    #solver.add(skipples[i] <= 10)
-    #solver.add(crottles[i] <= 10)
-    #solver.add(dupples[i] <= 10)
-
-
-    #solver.add(nuzzles[i] >= 0, nuzzles[i] <= 10)
-    #solver.add(prittles[i] >= 0, prittles[i] <= 10)
-    #solver.add(skipples[i] >= 0, skipples[i] <= 10)
-    #solver.add(crottles[i] >= 0, crottles[i] <= 10)
-    #solver.add(dupples[i] >= 0, dupples[i] <= 10)
     
-	#solver.add(nuzzles[i] >= 0)
-    #solver.add(prittles[i] >= 0)
-    #solver.add(skipples[i] >= 0)
-    #solver.add(crottles[i] >= 0)
-    #solver.add(dupples[i] >= 0)
-    
-    # Total pallets in each truck cannot exceed 10
+    # Can't have more than 10 pallets per truck
     solver.add(nuzzles[i] + prittles[i] + skipples[i] + crottles[i] + dupples[i] <= 10)
     
-    # Total weight in each truck cannot exceed 8000 kg
+    # Maximum of 8000kg per truck
     solver.add(nuzzles[i] * nuzzles_weight +
                prittles[i] * prittles_weight +
                skipples[i] * skipples_weight +
@@ -64,7 +46,7 @@ for i in range(num_trucks):
                dupples[i] * dupples_weight <= 8000)
 
 
-# Sum of all nuzzles, prittles, skipples, and crottles across all trucks must match the totals
+# Sum of amounts per truck must match total amount
 solver.add(Sum(nuzzles) == total_nuzzles)
 solver.add(Sum(prittles) == total_prittles)
 solver.add(Sum(skipples) == total_skipples)
@@ -76,21 +58,14 @@ solver.add(Sum([If(prittles[i] > 0, 1, 0) for i in range(num_trucks)]) >= 5)
 # Only 2 trucks can carry skipples
 solver.add(Sum([If(skipples[i] > 0, 1, 0) for i in range(num_trucks)]) == 2)
 
-# Objective: maximize the total number of dupples delivered
-solver.add(Sum(dupples) >= 0)
-maximize_dupples = Sum(dupples)
+# part b: enforce at leats 2 dupples if crottles are carried(per truck)
+#for i in range(num_trucks):
+#    solver.add(If(crottles[i] > 0, dupples[i] >= 2, dupples[i] == 0))
 
-# If crottles require dupples, enforce that constraint
-# If the crottles constraint is enforced, make sure each truck carrying crottles also carries at least 2 dupples
-for i in range(num_trucks):
-    solver.add(If(crottles[i] > 0, dupples[i] >= 2, True))
+# Goal is to maximize the number of dupples
+solver.maximize(Sum(dupples))
 
-# Objective function: maximize the number of dupples
-print("maximizing")
-solver.maximize(maximize_dupples)
-print("Post-max")
-# Check if the problem is solvable and get the solution
-
+# Check for solvability and print solution if found
 result = solver.check()
 print("done")
 if result == sat:
