@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 from z3 import *
 
 T = 300
@@ -9,7 +10,7 @@ food_capacity_a = 90
 food_capacity_b = 120
 food_capacity_c = 90
 
-truck_food_capacity = 150
+truck_food_capacity = 130
 
 truck_at_S = [Bool(f"truck_at_S_{t}") for t in range(T)]
 truck_at_A = [Bool(f"truck_at_A_{t}") for t in range(T)]
@@ -150,6 +151,16 @@ for t in range(T):
 
 # endregion
 
+print("=-=-=")
+print("Testing if there can be a solution found")
+if solver.check() == sat:
+    print("There is at least 1 solution possible")
+else:
+    print("No solutions possible")
+    exit(-1)
+
+print("=-=-=")
+print("Now testing if there is a loop possible")
 for t in range(1, T):
     solver.push()
 
@@ -171,7 +182,8 @@ for t in range(1, T):
 
     solver.add(If(truck_at_S[t], clauses, False))
 
-    print(f"Now at t = {t}")
+    if t % 20 == 0:
+        print(f"Now at t = {t}")
 
     if solver.check() == sat:
         model = solver.model()
@@ -196,8 +208,84 @@ for t in range(1, T):
                 print(f"Amount of food at town B: {model[food_remaining_B[i]]}")
                 print(f"Amount of food at town C: {model[food_remaining_C[i]]}")
 
-        break
+        # region Visualizations
+
+        food_A = [model[food_remaining_A[i]].as_long() for i in range(T)]
+        food_B = [model[food_remaining_B[i]].as_long() for i in range(T)]
+        food_C = [model[food_remaining_C[i]].as_long() for i in range(T)]
+        truck_load_values = [model[truck_load[i]].as_long() for i in range(T)]
+        food_A_succ = model[food_remaining_A[success]].as_long()
+        food_B_succ = model[food_remaining_B[success]].as_long()
+        food_C_succ = model[food_remaining_C[success]].as_long()
+        truck_load_succ = model[truck_load[success]].as_long()
+
+        fig, axs = plt.subplots(2, 2, figsize=(12, 10))
+
+        axs[0, 0].plot(range(T), food_A, label='Food at A', marker='_', color='green')
+        axs[0, 0].axvline(x=success, color='b', linestyle='--', label=f't1 = {success}')
+        axs[0, 0].axvline(x=t, color='b', linestyle='--', label=f't2 = {t}')
+        axs[0, 0].axhline(y=food_A_succ, color='black', linestyle=':', label=f'Equal height = {food_A_succ}')
+        axs[0, 0].scatter(success, food_A_succ, color='red', zorder=5)
+        axs[0, 0].scatter(t, food_A_succ, color='red', zorder=5)
+        axs[0, 0].set_xlim(0, T)
+        axs[0, 0].set_ylim(0, food_capacity_a + 10)
+        axs[0, 0].set_xlabel('Time Unit (t)')
+        axs[0, 0].set_ylabel('Food Remaining')
+        axs[0, 0].set_title('Food at A')
+        axs[0, 0].legend()
+        axs[0, 0].grid(True)
+
+        axs[0, 1].plot(range(T), food_B, label='Food at B', marker='_', color='blue')
+        axs[0, 1].axvline(x=success, color='b', linestyle='--', label=f't1 = {success}')
+        axs[0, 1].axvline(x=t, color='b', linestyle='--', label=f't2 = {t}')
+        axs[0, 1].axhline(y=food_B_succ, color='black', linestyle=':', label=f'Equal height = {food_B_succ}')
+        axs[0, 1].scatter(success, food_B_succ, color='red', zorder=5)
+        axs[0, 1].scatter(t, food_B_succ, color='red', zorder=5)
+        axs[0, 1].set_xlim(0, T)
+        axs[0, 1].set_ylim(0, food_capacity_b + 10)
+        axs[0, 1].set_xlabel('Time Unit (t)')
+        axs[0, 1].set_ylabel('Food Remaining')
+        axs[0, 1].set_title('Food at B')
+        axs[0, 1].legend()
+        axs[0, 1].grid(True)
+
+        axs[1, 0].plot(range(T), food_C, label='Food at C', marker='_', color='orange')
+        axs[1, 0].axvline(x=success, color='b', linestyle='--', label=f't1 = {success}')
+        axs[1, 0].axvline(x=t, color='b', linestyle='--', label=f't2 = {t}')
+        axs[1, 0].axhline(y=food_C_succ, color='black', linestyle=':', label=f'Equal height = {food_C_succ}')
+        axs[1, 0].scatter(success, food_C_succ, color='red', zorder=5)
+        axs[1, 0].scatter(t, food_C_succ, color='red', zorder=5)
+        axs[1, 0].set_xlim(0, T)
+        axs[1, 0].set_ylim(0, food_capacity_c + 10)
+        axs[1, 0].set_xlabel('Time Unit (t)')
+        axs[1, 0].set_ylabel('Food Remaining')
+        axs[1, 0].set_title('Food at C')
+        axs[1, 0].legend()
+        axs[1, 0].grid(True)
+
+        axs[1, 1].plot(range(T), truck_load_values, label='Truck Load', marker='_', color='red')
+        axs[1, 1].axvline(x=success, color='b', linestyle='--', label=f't1 = {success}')
+        axs[1, 1].axvline(x=t, color='b', linestyle='--', label=f't2 = {t}')
+        axs[1, 1].axhline(y=truck_load_succ, color='black', linestyle=':', label=f'Equal height = {truck_load_succ}')
+        axs[1, 1].scatter(success, truck_load_succ, color='red', zorder=5)
+        axs[1, 1].scatter(t, truck_load_succ, color='red', zorder=5)
+        axs[1, 1].set_xlim(0, T)
+        axs[1, 1].set_ylim(0, max(truck_load_values) + 10)
+        axs[1, 1].set_xlabel('Time Unit (t)')
+        axs[1, 1].set_ylabel('Truck Load')
+        axs[1, 1].set_title('Truck Load')
+        axs[1, 1].legend()
+        axs[1, 1].grid(True)
+
+        plt.tight_layout()
+
+        plt.show()
+
+        # endregion
+
+        exit(0)
     else:
         solver.pop()
 
-print("End of program")
+print("No loop could be found")
+exit(-1)
