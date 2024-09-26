@@ -1,6 +1,3 @@
-import time
-
-import numpy as np
 from z3 import *
 
 T = 300
@@ -153,44 +150,37 @@ for t in range(T):
 
 # endregion
 
-# region works indefinitely proof
-
 for t in range(1, T):
-    init_state_test = If(truck_at_S[t],
-                         And(
-                             food_remaining_A[t] == initial_food_a,
-                             food_remaining_B[t] == initial_food_b,
-                             food_remaining_C[t] == initial_food_c
-                         ),
-                         False
-                         )
-    init_state_test = simplify(init_state_test)
     solver.push()
-    solver.add(init_state_test)
+
+    clauses = BoolVal(False)
+
+    succ = Int("Success_var")
+    solver.add(succ >= 1)
+    solver.add(succ <= T)
+
+    for a in range(t - 1):
+        t1 = t - a - 1
+        clauses = Or(
+            clauses,
+            If(truck_at_S[t1], And(
+                food_remaining_A[t] == food_remaining_A[t1],
+                food_remaining_B[t] == food_remaining_B[t1],
+                food_remaining_C[t] == food_remaining_C[t1],
+                succ == t1
+            ), BoolVal(False)))
+
+    solver.add(If(truck_at_S[t], clauses, False))
 
     print(f"Now at t = {t}")
 
     if solver.check() == sat:
-        print(f"Found initial state at time {t}")
-
         model = solver.model()
 
-        results = []
-
-        for tn in range(T):
-            row = []
-            row.append(model[truck_load[tn]].as_long())
-            row.append(model[food_remaining_A[tn]].as_long())
-            row.append(model[food_remaining_B[tn]].as_long())
-            row.append(model[food_remaining_C[tn]].as_long())
-            row.append(1 if model[truck_at_S[tn]] else 0)
-            row.append(1 if model[truck_at_A[tn]] else 0)
-            row.append(1 if model[truck_at_B[tn]] else 0)
-            row.append(1 if model[truck_at_C[tn]] else 0)
-            results.append(row)
-
-        with open('ass3res.txt', 'w') as f:
-            np.savetxt(f, np.array(results))
+        success = model[succ].as_long()
+        print(f"Found repeating state at time {t} and {success}")
+        print(f"Food at {success}: A: {model[food_remaining_A[success]]}, B: {model[food_remaining_B[success]]}, C: {model[food_remaining_C[success]]}")
+        print(f"Food at {t}: A: {model[food_remaining_A[t]]}, B: {model[food_remaining_B[t]]}, C: {model[food_remaining_C[t]]}")
 
         for i in range(T):
             if model[truck_at_S[i]]:
@@ -212,89 +202,3 @@ for t in range(1, T):
         solver.pop()
 
 print("No solutions found")
-
-# exists_condition = False
-# for t1 in range(T - 1):
-#     for t2 in range(t1 + 1, T):
-#         same_state = If(And(Or(
-#             truck_at_S[t1],
-#             truck_at_A[t1],
-#             truck_at_B[t1],
-#             truck_at_C[t1]
-#         ), Or(
-#             truck_at_S[t2],
-#             truck_at_A[t2],
-#             truck_at_B[t2],
-#             truck_at_C[t2]
-#         )), And(
-#             Or(
-#                 And(truck_at_S[t1], truck_at_S[t2]),
-#                 And(truck_at_A[t1], truck_at_A[t2]),
-#                 And(truck_at_B[t1], truck_at_B[t2]),
-#                 And(truck_at_C[t1], truck_at_C[t2]),
-#             ),
-#             truck_load[t1] == truck_load[t2],
-#             food_remaining_A[t1] == food_remaining_A[t2],
-#             food_remaining_B[t1] == food_remaining_B[t2],
-#             food_remaining_C[t1] == food_remaining_C[t2],
-#             res1 == t1,
-#             res2 == t2
-#         ), False)
-#         exists_condition = Or(exists_condition, same_state)
-#
-# solver.add(exists_condition)
-
-# endregion
-
-# start_time = time.time()
-# result = solver.check()
-# end_time = time.time()
-#
-# time_taken = end_time - start_time
-#
-# if result == sat:
-#
-#     print(f"Found a solution in {time_taken} seconds!")
-#     model = solver.model()
-#
-#     results = []
-#
-#     for t in range(T):
-#         row = []
-#         row.append(model[truck_load[t]].as_long())
-#         row.append(model[food_remaining_A[t]].as_long())
-#         row.append(model[food_remaining_B[t]].as_long())
-#         row.append(model[food_remaining_C[t]].as_long())
-#         row.append(1 if model[truck_at_S[t]] else 0)
-#         row.append(1 if model[truck_at_A[t]] else 0)
-#         row.append(1 if model[truck_at_B[t]] else 0)
-#         row.append(1 if model[truck_at_C[t]] else 0)
-#         results.append(row)
-#
-#     with open('ass3res.txt', 'w') as f:
-#         np.savetxt(f, np.array(results))
-#
-#     for i in range(T):
-#         if model[truck_at_S[i]]:
-#             print(f"{i}: Now at town S")
-#         if model[truck_at_A[i]]:
-#             print(f"{i}: Now at town A, dropping off {model[drop[i]]}, current load {model[truck_load[i]]}")
-#         if model[truck_at_B[i]]:
-#             print(f"{i}: Now at town B, dropping off {model[drop[i]]}, current load {model[truck_load[i]]}")
-#         if model[truck_at_C[i]]:
-#             print(f"{i}: Now at town C, dropping off {model[drop[i]]}, current load {model[truck_load[i]]}")
-#
-#         if model[truck_at_S[i]] or model[truck_at_A[i]] or model[truck_at_B[i]] or model[truck_at_C[i]]:
-#             print(f"Amount of food at town A: {model[food_remaining_A[i]]}")
-#             print(f"Amount of food at town B: {model[food_remaining_B[i]]}")
-#             print(f"Amount of food at town C: {model[food_remaining_C[i]]}")
-#
-#     res = model[equal_state_time].as_long()
-#
-#     print(f"There is an initial state found at {res}")
-#     print(
-#         f"{res}: Food: {model[food_remaining_A[res]]}, {model[food_remaining_B[res]]}, {model[food_remaining_C[res]]}")
-#     print(
-#         f"    Truck load: {model[truck_load[res]]}, last location: {model[last_location[res]]}")
-# else:
-#     print("No solutions found")
