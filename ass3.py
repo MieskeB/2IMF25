@@ -159,8 +159,7 @@ for t in range(1, T):
     solver.add(succ >= 1)
     solver.add(succ <= T)
 
-    for a in range(t - 1):
-        t1 = t - a - 1
+    for t1 in range(t - 1):
         clauses = Or(
             clauses,
             If(truck_at_S[t1], And(
