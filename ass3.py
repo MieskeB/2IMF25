@@ -1,7 +1,7 @@
-import matplotlib.pyplot as plt
 from z3 import *
+import matplotlib.pyplot as plt
 
-T = 300
+T = 339
 
 initial_food_a = 60
 initial_food_b = 60
@@ -10,7 +10,7 @@ food_capacity_a = 90
 food_capacity_b = 120
 food_capacity_c = 90
 
-truck_food_capacity = 130
+truck_food_capacity = 150
 
 truck_at_S = [Bool(f"truck_at_S_{t}") for t in range(T)]
 truck_at_A = [Bool(f"truck_at_A_{t}") for t in range(T)]
@@ -153,15 +153,33 @@ for t in range(T):
 
 print("=-=-=")
 print("Testing if there can be a solution found")
-if solver.check() == sat:
+res = solver.check()
+if res == sat:
     print("There is at least 1 solution possible")
+
+    model = solver.model()
+
+    for i in range(T):
+        if model[truck_at_S[i]]:
+            print(f"{i}: Now at town S")
+        if model[truck_at_A[i]]:
+            print(f"{i}: Now at town A, dropping off {model[drop[i]]}, current load {model[truck_load[i]]}")
+        if model[truck_at_B[i]]:
+            print(f"{i}: Now at town B, dropping off {model[drop[i]]}, current load {model[truck_load[i]]}")
+        if model[truck_at_C[i]]:
+            print(f"{i}: Now at town C, dropping off {model[drop[i]]}, current load {model[truck_load[i]]}")
+
+        if model[truck_at_S[i]] or model[truck_at_A[i]] or model[truck_at_B[i]] or model[truck_at_C[i]]:
+            print(f"Amount of food at town A: {model[food_remaining_A[i]]}")
+            print(f"Amount of food at town B: {model[food_remaining_B[i]]}")
+            print(f"Amount of food at town C: {model[food_remaining_C[i]]}")
 else:
     print("No solutions possible")
     exit(-1)
 
 print("=-=-=")
 print("Now testing if there is a loop possible")
-for t in range(1, T):
+for t in range(T):
     solver.push()
 
     clauses = BoolVal(False)
@@ -187,26 +205,12 @@ for t in range(1, T):
 
     if solver.check() == sat:
         model = solver.model()
-
         success = model[succ].as_long()
         print(f"Found repeating state at time {t} and {success}")
-        print(f"Food at {success}: A: {model[food_remaining_A[success]]}, B: {model[food_remaining_B[success]]}, C: {model[food_remaining_C[success]]}")
-        print(f"Food at {t}: A: {model[food_remaining_A[t]]}, B: {model[food_remaining_B[t]]}, C: {model[food_remaining_C[t]]}")
-
-        for i in range(T):
-            if model[truck_at_S[i]]:
-                print(f"{i}: Now at town S")
-            if model[truck_at_A[i]]:
-                print(f"{i}: Now at town A, dropping off {model[drop[i]]}, current load {model[truck_load[i]]}")
-            if model[truck_at_B[i]]:
-                print(f"{i}: Now at town B, dropping off {model[drop[i]]}, current load {model[truck_load[i]]}")
-            if model[truck_at_C[i]]:
-                print(f"{i}: Now at town C, dropping off {model[drop[i]]}, current load {model[truck_load[i]]}")
-
-            if model[truck_at_S[i]] or model[truck_at_A[i]] or model[truck_at_B[i]] or model[truck_at_C[i]]:
-                print(f"Amount of food at town A: {model[food_remaining_A[i]]}")
-                print(f"Amount of food at town B: {model[food_remaining_B[i]]}")
-                print(f"Amount of food at town C: {model[food_remaining_C[i]]}")
+        print(
+            f"Food at {success}: A: {model[food_remaining_A[success]]}, B: {model[food_remaining_B[success]]}, C: {model[food_remaining_C[success]]}")
+        print(
+            f"Food at {t}: A: {model[food_remaining_A[t]]}, B: {model[food_remaining_B[t]]}, C: {model[food_remaining_C[t]]}")
 
         # region Visualizations
 
