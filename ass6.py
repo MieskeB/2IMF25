@@ -1,5 +1,4 @@
-#from oxidd import BDDManager
-
+from oxidd.bdd import BDDManager
 import re
 import z3
 
@@ -18,9 +17,9 @@ with open(circuit_path, 'r') as file:
 with open(circuit_opt_path, 'r') as file_opt:
 	circuit_opt = file_opt.read()
 	
-#manager = BDDManager(100_000_000, 1_000_000, 1)
+manager = BDDManager(100_000_000, 1_000_000, 1)
 
-
+#returns for gates a dictionary with output, type, list[inputs]
 def parse_iscas_bench(file_path):
     inputs = []
     outputs = []
