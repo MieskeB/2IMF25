@@ -1,10 +1,11 @@
 import os
 
-from oxidd.bdd import BDDManager
-
-from buddy import buddy
+from buddy.buddy import BuDDy
 
 directory = 'ass5'
+
+var_order = list(range(1000))
+manager = BuDDy(var_order, "buddy/buddy.windows")
 
 def process_file(filename):
     f = os.path.join(directory, filename)
@@ -26,22 +27,21 @@ def process_file(filename):
             for c in line.split(' '):
                 code.append(int(c))
 
-    manager = BDDManager(100_000_000, 1_000_000, 10)
-    x = [manager.new_var() for i in range(number_of_variables)]
+    x = [manager.var2bdd(i) for i in range(number_of_variables)]
 
-    clauses = manager.true()
-    curr = manager.false()
+    clauses = manager.true
+    curr = manager.false
     for c in code:
         if c == 0:
-            clauses &= curr
-            curr = manager.false()
+            clauses = manager.apply_and(clauses, curr)
+            curr = manager.false
         else:
             if c > 0:
-                curr |= x[c - 1]
+                curr = manager.apply_or(curr, x[c - 1])
             else:
-                curr |= ~x[abs(c) - 1]
+                curr = manager.apply_or(curr, manager.neg(x[abs(c) - 1]))
 
-    return clauses.sat_count_float(number_of_variables)
+    return manager.satcount(clauses)
 
 
 for filename in os.listdir(directory):
