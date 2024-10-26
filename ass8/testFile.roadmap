@@ -1,0 +1,9 @@
+# Define roads
+road 1
+road 2
+road 3
+road 4
+
+# Define road passings
+1 -> 3
+3 -> 1

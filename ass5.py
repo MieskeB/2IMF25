@@ -52,7 +52,7 @@ def run_bdd(manager, clauses_array, variable_count, var_order):
     manager.dump(clauses, filename=f"{directory}/res/{filename.replace('.dimacs', '')}.dot")
     manager.dump(clauses, filename=f"{directory}/res/{filename.replace('.dimacs', '')}.bdd")
 
-    node_count = manager.node_count(clauses)
+    node_count = manager.nodecount(clauses)
     print(f"Node count: {node_count}")
     sat_count = manager.satcount_ln(clauses)
     # clauses_array is the list of all possible clauses, while clauses is the manager's BDD
@@ -102,7 +102,7 @@ def permissiveness_strat_1(manager: BuDDy, clauses_array, given_clauses, var_ord
                 print(f"\033[91m-{var}\033[0m", end=" ")
             else:
                 break
-        if manager.node_count(clauses) == 0:
+        if manager.nodecount(clauses) == 0:
             break
     print("")
     return essential_count
@@ -130,7 +130,7 @@ def permissiveness_strat_2(manager: BuDDy, clauses_array, given_clauses, var_ord
                 print(f"\033[91m-{var}\033[0m", end=" ")
             else:
                 break
-        if manager.node_count(clauses) == 0:
+        if manager.nodecount(clauses) == 0:
             break
     print("")
     return essential_count
@@ -154,7 +154,7 @@ def permissiveness_strat_3(manager: BuDDy, clauses_array, given_clauses, var_ord
             else:
                 clauses = deselected_clause
                 print(f"\033[91m-{var}\033[0m", end=" ")
-        if manager.node_count(clauses) == 0:
+        if manager.nodecount(clauses) == 0:
             break
     print("")
     return essential_count
@@ -177,7 +177,7 @@ def permissiveness_strat_4(manager: BuDDy, clauses_array, given_clauses, var_ord
             else:
                 clauses = selected_clause
                 print(f"\033[91m{var}\033[0m", end=" ")
-        if manager.node_count(clauses) == 0:
+        if manager.nodecount(clauses) == 0:
             break
     print("")
     return essential_count
@@ -226,6 +226,6 @@ if __name__ == "__main__":
 
     print(f"=-=-= {filename} =-=-=")
     clauses_array, number_of_variables, var_order = process_dimacs_file(filename)
-    manager = BuDDy(var_order, "buddy/buddy.windows")
+    manager = BuDDy(var_order, "buddy.windows")
     run_bdd(manager, clauses_array, number_of_variables, var_order)
     print(f"=-=-= {filename} =-=-=")
