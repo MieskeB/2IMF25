@@ -1,0 +1,37 @@
+digraph G {
+0 [shape=box, label="0", style=filled, shape=box, height=0.3, width=0.3];
+1 [shape=box, label="1", style=filled, shape=box, height=0.3, width=0.3];
+84646 [label="2"];
+84646 -> 84642 [style=dotted];
+84646 -> 84645 [style=filled];
+84642 [label="5"];
+84642 -> 84621 [style=dotted];
+84642 -> 84641 [style=filled];
+84621 [label="11"];
+84621 -> 86 [style=dotted];
+84621 -> 0 [style=filled];
+86 [label="42"];
+86 -> 0 [style=dotted];
+86 -> 1 [style=filled];
+84641 [label="11"];
+84641 -> 86 [style=dotted];
+84641 -> 26 [style=filled];
+26 [label="12"];
+26 -> 0 [style=dotted];
+26 -> 1 [style=filled];
+84645 [label="5"];
+84645 -> 84623 [style=dotted];
+84645 -> 84644 [style=filled];
+84623 [label="11"];
+84623 -> 84622 [style=dotted];
+84623 -> 0 [style=filled];
+84622 [label="12"];
+84622 -> 86 [style=dotted];
+84622 -> 0 [style=filled];
+84644 [label="11"];
+84644 -> 84643 [style=dotted];
+84644 -> 26 [style=filled];
+84643 [label="12"];
+84643 -> 86 [style=dotted];
+84643 -> 1 [style=filled];
+}

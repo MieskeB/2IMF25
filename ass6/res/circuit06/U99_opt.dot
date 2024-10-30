@@ -1,7 +1,22 @@
 digraph G {
 0 [shape=box, label="0", style=filled, shape=box, height=0.3, width=0.3];
 1 [shape=box, label="1", style=filled, shape=box, height=0.3, width=0.3];
-48 [label="23"];
-48 -> 0 [style=dotted];
-48 -> 1 [style=filled];
+289 [label="0"];
+289 -> 1 [style=dotted];
+289 -> 288 [style=filled];
+288 [label="3"];
+288 -> 253 [style=dotted];
+288 -> 10 [style=filled];
+253 [label="4"];
+253 -> 13 [style=dotted];
+253 -> 12 [style=filled];
+13 [label="5"];
+13 -> 1 [style=dotted];
+13 -> 0 [style=filled];
+12 [label="5"];
+12 -> 0 [style=dotted];
+12 -> 1 [style=filled];
+10 [label="4"];
+10 -> 0 [style=dotted];
+10 -> 1 [style=filled];
 }

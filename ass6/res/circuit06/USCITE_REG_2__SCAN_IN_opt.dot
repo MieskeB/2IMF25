@@ -1,7 +1,7 @@
 digraph G {
 0 [shape=box, label="0", style=filled, shape=box, height=0.3, width=0.3];
 1 [shape=box, label="1", style=filled, shape=box, height=0.3, width=0.3];
-28 [label="13"];
-28 -> 0 [style=dotted];
-28 -> 1 [style=filled];
+18 [label="8"];
+18 -> 0 [style=dotted];
+18 -> 1 [style=filled];
 }

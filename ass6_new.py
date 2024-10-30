@@ -38,54 +38,54 @@ def create_bdd(input_vars, output_vars, items):
     bdd_vars = {}
 
     for pos, var in enumerate(input_vars):
-        bdd_vars[pos] = manager.var2bdd(pos)
-    for pos, var in enumerate(output_vars):
-        bdd_vars[pos + len(input_vars)] = manager.var2bdd(pos + len(input_vars))
+        bdd_vars[var] = manager.var2bdd(pos)
 
-    print(bdd_vars)
+    def eval(key):
+        if key in bdd_vars:
+            return bdd_vars[key]
 
-    for pos, (key, value) in enumerate(items.items()):
+        value = items[key]
+
+        operation = value.split('(')[0]
         operands = re.search(r'\((.*?)\)', value).group(1).split(', ')
 
-        index = []
-        for operand in operands:
-            if operand in output_vars:
-                index.append(output_vars.index(operand) + len(input_vars))
-            elif operand in input_vars:
-                index.append(input_vars.index(operand))
-            else:
-                index.append(list(items.keys()).index(operand) + len(input_vars) + len(output_vars))
+        operand_bdds = [eval(op.strip()) for op in operands]
 
-            if index[len(index) - 1] not in bdd_vars:
-                bdd_vars[index[len(index) - 1]] = manager.var2bdd(index[len(index) - 1])
-
-        if len(index) == 1:
-            if 'NOT' in value:
-                bdd_vars[pos + len(input_vars) + len(output_vars)] = manager.apply(value.split('(')[0], bdd_vars[index[0]])
-            else:
-                print(f"Operation {value.split('(')[0]} not defined for 1 parameter")
-        elif len(index) == 2:
-            bdd_vars[pos + len(input_vars) + len(output_vars)] = manager.apply(value.split('(')[0], bdd_vars[index[0]], bdd_vars[index[1]])
+        if operation == 'NOT':
+            result = manager.apply("NOT", operand_bdds[0])
+        elif operation == 'AND':
+            result = operand_bdds[0]
+            for operand in operand_bdds[1:]:
+                result = manager.apply_and(result, operand)
+        elif operation == 'OR':
+            result = operand_bdds[0]
+            for operand in operand_bdds[1:]:
+                result = manager.apply_or(result, operand)
+        elif operation == 'NAND':
+            result = operand_bdds[0]
+            for operand in operand_bdds[1:]:
+                result = manager.apply("and", result, operand)
+            result = manager.apply("not", result)
+        elif operation == 'NOR':
+            result = operand_bdds[0]
+            for operand in operand_bdds[1:]:
+                result = manager.apply("or", result, operand)
+            result = manager.apply("not", result)
+        elif operation == 'XOR':
+            result = operand_bdds[0]
+            for operand in operand_bdds[1:]:
+                result = manager.apply("xor", result, operand)
         else:
-            if 'NAND' in value:
-                res_i = bdd_vars[index[0]]
-                for i_i in range(1, len(index)):
-                    res_i = manager.apply_and(res_i, bdd_vars[index[i_i]])
-                bdd_vars[pos + len(input_vars) + len(output_vars)] = manager.apply("NOT", res_i)
-            elif 'AND' in value:
-                res_i = bdd_vars[index[0]]
-                for i_i in range(1, len(index)):
-                    res_i = manager.apply_and(res_i, bdd_vars[index[i_i]])
-                bdd_vars[pos + len(input_vars) + len(output_vars)] = res_i
-            else:
-                print(f"Operation {value.split('(')[0]} not defined for >=3 parameters")
+            print(f"No operation {operation} defined")
 
-    print(bdd_vars)
-    return {out_var: bdd_vars[pos + len(input_vars)] for pos, out_var in enumerate(output_vars)}
+        bdd_vars[key] = result
+        return result
+
+    return {out_var: eval(out_var) for out_var in output_vars}
 
 
 if __name__ == "__main__":
-    circuit = "20"
+    circuit = "00"
     input_v, output_v, items_v = process_bench_file(f"circuit{circuit}.bench")
     bdd_result = create_bdd(input_v, output_v, items_v)
     input_v2, output_v2, items_v2 = process_bench_file(f"circuit{circuit}_opt.bench")
@@ -102,17 +102,17 @@ if __name__ == "__main__":
     bdd_result_items = list(bdd_result.values())
     bdd_result2_items = list(bdd_result2.values())
 
-    res = True
+    all_equal = True
     for i in range(len(bdd_result_items)):
         res = manager.apply("equiv", bdd_result_items[i], bdd_result2_items[i])
         if res == manager.true:
             print(f"\033[92mCircuit{circuit}.bench variable {list(bdd_result.keys())[i]} is equivalent to Circuit{circuit}_opt.bench variable {list(bdd_result2.keys())[i]}!\033[0m")
         else:
             print(f"\033[91mCircuit{circuit}.bench variable {list(bdd_result.keys())[i]} is NOT equivalent to Circuit{circuit}_opt.bench variable {list(bdd_result2.keys())[i]}!\033[0m")
-            res = False
+            all_equal = False
 
     print(f"=-=-=-=-=-=-=  Circuit{circuit}  =-=-=-=-=-=-=-=-=-=")
-    if res:
+    if all_equal:
         print(f"\033[92mThe circuits are equivalent!\033[0m")
     else:
         print(f"\033[91mThe circuits are NOT equivalent!\033[0m")
