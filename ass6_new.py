@@ -5,7 +5,7 @@ from buddy.buddy import BuDDy
 
 directory = 'ass6'
 
-manager = BuDDy(list(range(100)), "buddy.windows")
+manager = BuDDy(list(range(1000)), "buddy.windows")
 
 
 def process_bench_file(filename):
@@ -85,7 +85,7 @@ def create_bdd(input_vars, output_vars, items):
 
 
 if __name__ == "__main__":
-    circuit = "00"
+    circuit = "16"
     input_v, output_v, items_v = process_bench_file(f"circuit{circuit}.bench")
     bdd_result = create_bdd(input_v, output_v, items_v)
     input_v2, output_v2, items_v2 = process_bench_file(f"circuit{circuit}_opt.bench")
