@@ -40,7 +40,7 @@ def create_bdd(input_vars, output_vars, items):
     for pos, var in enumerate(input_vars):
         bdd_vars[var] = manager.var2bdd(pos)
 
-    def eval(key):
+    def evaluate(key):
         if key in bdd_vars:
             return bdd_vars[key]
 
@@ -49,7 +49,7 @@ def create_bdd(input_vars, output_vars, items):
         operation = value.split('(')[0]
         operands = re.search(r'\((.*?)\)', value).group(1).split(', ')
 
-        operand_bdds = [eval(op.strip()) for op in operands]
+        operand_bdds = [evaluate(op.strip()) for op in operands]
 
         if operation == 'NOT':
             result = manager.apply("NOT", operand_bdds[0])
@@ -81,7 +81,7 @@ def create_bdd(input_vars, output_vars, items):
         bdd_vars[key] = result
         return result
 
-    return {out_var: eval(out_var) for out_var in output_vars}
+    return {out_var: evaluate(out_var) for out_var in output_vars}
 
 
 if __name__ == "__main__":
