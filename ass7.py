@@ -157,9 +157,9 @@ if __name__ == "__main__":
     file_name = "bakery.1.c.ba"
 
     initial_state, final_states, transitions = process_ba_file(file_name)
-    # print(f"Initial state: {initial_state}")
-    # print(f"Transitions: {transitions}")
-    # print(f"Final states: {final_states}")
+    print(f"Initial state: {initial_state}")
+    print(f"Transitions: {transitions}")
+    print(f"Final states: {final_states}")
 
     if initial_state and final_states and transitions:
         result_bdd = create_bdd(initial_state, final_states, transitions)
