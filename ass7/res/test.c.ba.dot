@@ -1,16 +1,16 @@
 digraph G {
 0 [shape=box, label="0", style=filled, shape=box, height=0.3, width=0.3];
 1 [shape=box, label="1", style=filled, shape=box, height=0.3, width=0.3];
-200004 [label="0"];
-200004 -> 4 [style=dotted];
-200004 -> 200003 [style=filled];
-4 [label="1"];
-4 -> 0 [style=dotted];
-4 -> 1 [style=filled];
-200003 [label="1"];
-200003 -> 0 [style=dotted];
-200003 -> 6 [style=filled];
-6 [label="2"];
-6 -> 0 [style=dotted];
-6 -> 1 [style=filled];
+200008 [label="0"];
+200008 -> 200007 [style=dotted];
+200008 -> 0 [style=filled];
+200007 [label="1"];
+200007 -> 0 [style=dotted];
+200007 -> 200006 [style=filled];
+200006 [label="2"];
+200006 -> 0 [style=dotted];
+200006 -> 8 [style=filled];
+8 [label="3"];
+8 -> 0 [style=dotted];
+8 -> 1 [style=filled];
 }
