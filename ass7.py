@@ -52,12 +52,14 @@ def create_bdd(initial_state, final_states, transitions):
     result_bdd = manager.true
 
     for (label_from_val, (from_val, label, to_val, _)) in ((k, v) for k, v in transitions.items() if v[3] == 0):
+        print(result_bdd)
         if from_val not in var_map.keys():
             var_map[from_val] = manager.var2bdd(len(var_map))
         if to_val not in var_map.keys():
             var_map[to_val] = manager.var2bdd(len(var_map))
 
         if label == '0' and '1' + label_from_val[1:] not in transitions.keys():
+            print("apple")
             # Case if only 0 exists
             la = label_from_val[:-1] + str(1)
             if la in transitions.keys():
