@@ -1,6 +1,7 @@
 # Packages: z3-solver, pandas
 from z3 import *
 import pandas as pd
+import matplotlib.pyplot as plt
 
 amount_of_people = 7
 amount_of_monthly_tasks = 7
@@ -53,11 +54,14 @@ for person in range(amount_of_people):
 for week in range(T):
     for person in range(amount_of_people):
         if person in [0, 1, 2]:
-            solver.add(Or(task_assignment[week][person] >= 0, task_assignment[week][person] <= 3,
+            solver.add(Or(task_assignment[week][person] == 0, task_assignment[week][person] == 1,
+                          task_assignment[week][person] == 2, task_assignment[week][person] == 3,
                           task_assignment[week][person] == 6, task_assignment[week][person] == 7))
         elif person in [3, 4, 5, 6]:
-            solver.add(Or(task_assignment[week][person] >= 0, task_assignment[week][person] <= 2,
-                          task_assignment[week][person] >= 4, task_assignment[week][person] <= 7))
+            solver.add(Or(task_assignment[week][person] == 0, task_assignment[week][person] == 1,
+                          task_assignment[week][person] == 2, task_assignment[week][person] == 4,
+                          task_assignment[week][person] == 5, task_assignment[week][person] == 6,
+                          task_assignment[week][person] == 7))
 
 # region rests
 
