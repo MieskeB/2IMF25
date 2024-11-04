@@ -1,25 +1,3 @@
-digraph G {
-0 [shape=box, label="0", style=filled, shape=box, height=0.3, width=0.3];
-1 [shape=box, label="1", style=filled, shape=box, height=0.3, width=0.3];
-3332 [label="6"];
-3332 -> 3327 [style=dotted];
-3332 -> 3331 [style=filled];
-3327 [label="25"];
-3327 -> 0 [style=dotted];
-3327 -> 3291 [style=filled];
-3291 [label="43"];
-3291 -> 1 [style=dotted];
-3291 -> 96 [style=filled];
-96 [label="47"];
-96 -> 0 [style=dotted];
-96 -> 1 [style=filled];
-3331 [label="25"];
-3331 -> 3292 [style=dotted];
-3331 -> 1 [style=filled];
-3292 [label="43"];
-3292 -> 0 [style=dotted];
-3292 -> 97 [style=filled];
-97 [label="47"];
-97 -> 1 [style=dotted];
-97 -> 0 [style=filled];
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:f7b5b2a271457ee7ff1f814e9704b28d3f1cd1a107f2babdc36f8ff10cb38f49
+size 685
